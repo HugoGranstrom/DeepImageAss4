@@ -5,7 +5,10 @@ build
 *.egg-info
 dist
 output/
-data/*
+data/custom/images
+data/custom/labels
+data/test
+data/samples
 backup
 weights/*.weights
 weights/*.conv.*
