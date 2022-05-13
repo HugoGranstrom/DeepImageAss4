@@ -14,7 +14,7 @@ from utils.config import opt
 from torchnet.meter import ConfusionMeter, AverageValueMeter
 
 
-device = torch.device("cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 LossTuple = namedtuple('LossTuple',
                        ['rpn_loc_loss',
@@ -212,7 +212,7 @@ class FasterRCNNTrainer(nn.Module):
         return save_path
 
     def load(self, path, load_optimizer=True, parse_opt=False, ):
-        state_dict = t.load(path)
+        state_dict = t.load(path, map_location=device)
         if 'model' in state_dict:
             self.faster_rcnn.load_state_dict(state_dict['model'])
         else:  # legacy way, for backward compatibility
