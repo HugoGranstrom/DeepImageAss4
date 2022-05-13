@@ -13,7 +13,7 @@ from torch.nn import functional as F
 from utils.config import opt
 
 
-device = t.device("cuda" if torch.cuda.is_available() else "cpu")
+device = t.device("cuda" if t.cuda.is_available() else "cpu")
 
 
 def nograd(f):
