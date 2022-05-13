@@ -3,6 +3,8 @@ import torch
 from torchvision.ops import nms
 from model.utils.bbox_tools import bbox2loc, bbox_iou, loc2bbox
 
+device = torch.device("cpu")
+
 
 class ProposalTargetCreator(object):
     """Assign ground truth bounding boxes to given RoIs.
@@ -422,8 +424,8 @@ class ProposalCreator:
         # unNOTE: somthing is wrong here!
         # TODO: remove cuda.to_gpu
         keep = nms(
-            torch.from_numpy(roi).cuda(),
-            torch.from_numpy(score).cuda(),
+            torch.from_numpy(roi).to(device),
+            torch.from_numpy(score).to(device),
             self.nms_thresh)
         if n_post_nms > 0:
             keep = keep[:n_post_nms]

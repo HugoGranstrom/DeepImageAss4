@@ -4,6 +4,7 @@ import os
 import ipdb
 import matplotlib
 from tqdm import tqdm
+import torch
 
 from utils.config import opt
 from data.dataset import Dataset, TestDataset, inverse_normalize
@@ -17,6 +18,8 @@ from utils.eval_tool import eval_detection_voc
 # fix for ulimit
 # https://github.com/pytorch/pytorch/issues/973#issuecomment-346405667
 import resource
+
+device = torch.device("cpu")
 
 rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
 resource.setrlimit(resource.RLIMIT_NOFILE, (20480, rlimit[1]))
@@ -64,7 +67,7 @@ def train(**kwargs):
                                        )
     faster_rcnn = FasterRCNNVGG16()
     print('model construct completed')
-    trainer = FasterRCNNTrainer(faster_rcnn).cuda()
+    trainer = FasterRCNNTrainer(faster_rcnn).to(device)
     if opt.load_path:
         trainer.load(opt.load_path)
         print('load pretrained model from %s' % opt.load_path)
@@ -75,7 +78,7 @@ def train(**kwargs):
         trainer.reset_meters()
         for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
             scale = at.scalar(scale)
-            img, bbox, label = img.cuda().float(), bbox_.cuda(), label_.cuda()
+            img, bbox, label = img.to(device).float(), bbox_.to(device), label_.to(device)
             trainer.train_step(img, bbox, label, scale)
 
             if (ii + 1) % opt.plot_every == 0:
