@@ -102,7 +102,7 @@ def run():
     model = load_model(args.model, args.pretrained_weights)
 
     # Print model
-    if args.verbose or True:
+    if args.verbose:
         summary(model, input_size=(3, model.hyperparams['height'], model.hyperparams['height']))
 
     mini_batch_size = model.hyperparams['batch'] // model.hyperparams['subdivisions']
