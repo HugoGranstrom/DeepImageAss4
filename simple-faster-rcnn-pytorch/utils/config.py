@@ -8,11 +8,11 @@ from pprint import pprint
 class Config:
     # data
     # voc_data_dir = '/dataset/PASCAL2007/VOC2007/'
-    voc_data_dir = 'VOCdevkit/VOC2007'
-    min_size = 600  # image resize
-    max_size = 1000 # image resize
-    num_workers = 8
-    test_num_workers = 8
+    voc_data_dir = 'dataset-test/'
+    min_size = 256  # image resize
+    max_size = 400 # image resize
+    num_workers = 2
+    test_num_workers = 2
 
     # sigma for l1_smooth_loss
     rpn_sigma = 3.
@@ -46,7 +46,7 @@ class Config:
 
     test_num = 10000
     # model
-    load_path = None
+    load_path = None #"checkpoints/fasterrcnn_12211511_0.701052458187_torchvision_pretrain.pth.701052458187"
 
     caffe_pretrain = False # use caffe pretrained model instead of torchvision
     caffe_pretrain_path = 'checkpoints/vgg16_caffe.pth'
