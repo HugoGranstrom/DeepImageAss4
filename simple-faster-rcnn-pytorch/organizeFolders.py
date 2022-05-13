@@ -108,7 +108,7 @@ with open(os.path.join(imageset_dir, "test.txt"), "w") as f:
 
 
 trainval_content = ""
-for name in valid_names + train_names:
+for name in train_names: # valid_names + train_names
   trainval_content += name + "\n"
 trainval_content = trainval_content[:-1]
 
