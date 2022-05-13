@@ -315,4 +315,11 @@ def load_model(model_path, weights_path=None):
         else:
             # Load darknet weights
             model.load_darknet_weights(weights_path)
+    
+    for i in range(len(model.module_list) // 2):
+        layer = model.module_list[i]
+        for param in layer.parameters():
+            print("freeze!")
+            param.requires_grad = False
+
     return model
