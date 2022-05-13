@@ -23,6 +23,8 @@ from pytorchyolo.test import _evaluate, _create_validation_data_loader
 from terminaltables import AsciiTable
 
 from torchsummary import summary
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
 
 def _create_data_loader(img_path, batch_size, img_size, n_cpu, multiscale_training=False):
@@ -66,7 +68,7 @@ def run():
     parser.add_argument("-v", "--verbose", action='store_true', help="Makes the training more verbose")
     parser.add_argument("--n_cpu", type=int, default=8, help="Number of cpu threads to use during batch generation")
     parser.add_argument("--pretrained_weights", type=str, help="Path to checkpoint file (.weights or .pth). Starts training from checkpoint model")
-    parser.add_argument("--checkpoint_interval", type=int, default=1, help="Interval of epochs between saving model weights")
+    parser.add_argument("--checkpoint_interval", type=int, default=10, help="Interval of epochs between saving model weights")
     parser.add_argument("--evaluation_interval", type=int, default=1, help="Interval of epochs between evaluations on validation set")
     parser.add_argument("--multiscale_training", action="store_true", help="Allow multi-scale training")
     parser.add_argument("--iou_thres", type=float, default=0.5, help="Evaluation: IOU threshold required to qualify as detected")
@@ -100,7 +102,7 @@ def run():
     model = load_model(args.model, args.pretrained_weights)
 
     # Print model
-    if args.verbose:
+    if args.verbose or True:
         summary(model, input_size=(3, model.hyperparams['height'], model.hyperparams['height']))
 
     mini_batch_size = model.hyperparams['batch'] // model.hyperparams['subdivisions']
@@ -156,7 +158,11 @@ def run():
 
         for batch_i, (_, imgs, targets) in enumerate(tqdm.tqdm(dataloader, desc=f"Training Epoch {epoch}")):
             batches_done = len(dataloader) * epoch + batch_i
-
+            """ if epoch == 1 and batch_i == 1:
+                plt.imshow(imgs[0,:,:,:].permute(1, 2, 0).numpy())
+                plt.gca().add_patch(Rectangle(((targets[0, 2]-targets[0, 4]/2)*224,(targets[0, 3]-targets[0,5]/2)*224),targets[0,4]*224,targets[0,5]*224,linewidth=1,edgecolor='r',facecolor='none'))
+                print(targets)
+                plt.show() """
             imgs = imgs.to(device, non_blocking=True)
             targets = targets.to(device)
 
