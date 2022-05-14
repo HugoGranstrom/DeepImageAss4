@@ -65,7 +65,7 @@ def train(**kwargs):
                                        shuffle=False, \
                                        pin_memory=True
                                        )
-    faster_rcnn = FasterRCNNVGG16()
+    faster_rcnn = FasterRCNNVGG16(n_fg_class=7)
     print('model construct completed')
     trainer = FasterRCNNTrainer(faster_rcnn).to(device)
     if opt.load_path:
