@@ -72,13 +72,17 @@ def train(**kwargs):
         trainer.load(opt.load_path)
         print('load pretrained model from %s' % opt.load_path)
 
+    """ # Freeze weights?
+    for param in faster_rcnn.parameters():
+        param.requires_grad = False """
+
     new_classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096, bias=True), torch.nn.ReLU(inplace=True), torch.nn.Linear(4096, 4096, bias=True), torch.nn.ReLU(inplace=True))
-    faster_rcnn.head = head = VGG16RoIHead(
+    faster_rcnn.head = VGG16RoIHead(
             n_class=7 + 1,
             roi_size=7,
             spatial_scale=(1. / faster_rcnn.feat_stride),
             classifier=new_classifier
-        )
+        ).to(device)
     
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
