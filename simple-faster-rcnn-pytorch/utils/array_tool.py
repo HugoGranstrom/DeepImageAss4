@@ -16,7 +16,7 @@ def totensor(data, cuda=True):
         tensor = t.from_numpy(data)
     if isinstance(data, t.Tensor):
         tensor = data.detach()
-    if cuda and torch.cuda.is_available():
+    if cuda and t.cuda.is_available():
         tensor = tensor.cuda()
     return tensor
 
