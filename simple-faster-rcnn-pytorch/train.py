@@ -83,10 +83,12 @@ def train(**kwargs):
             spatial_scale=(1. / faster_rcnn.feat_stride),
             classifier=new_classifier
         ).to(device)
+    faster_rcnn.optimizer = faster_rcnn.get_optimizer()
     
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
     lr_ = opt.lr
+    print(f"Will train for {opt.epoch} epochs!")
     for epoch in range(opt.epoch):
         trainer.reset_meters()
         for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
