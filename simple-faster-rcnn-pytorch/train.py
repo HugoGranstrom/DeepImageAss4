@@ -8,7 +8,7 @@ import torch
 
 from utils.config import opt
 from data.dataset import Dataset, TestDataset, inverse_normalize
-from model import FasterRCNNVGG16
+from model import FasterRCNNVGG16, VGG16RoIHead
 from torch.utils import data as data_
 from trainer import FasterRCNNTrainer
 from utils import array_tool as at
@@ -65,12 +65,21 @@ def train(**kwargs):
                                        shuffle=False, \
                                        pin_memory=True
                                        )
-    faster_rcnn = FasterRCNNVGG16(n_fg_class=7)
+    faster_rcnn = FasterRCNNVGG16()
     print('model construct completed')
     trainer = FasterRCNNTrainer(faster_rcnn).to(device)
     if opt.load_path:
         trainer.load(opt.load_path)
         print('load pretrained model from %s' % opt.load_path)
+
+    new_classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096, bias=True), torch.nn.ReLU(inplace=True), torch.nn.Linear(4096, 4096, bias=True), torch.nn.ReLU(inplace=True))
+    faster_rcnn.head = head = VGG16RoIHead(
+            n_class=7 + 1,
+            roi_size=7,
+            spatial_scale=(1. / faster_rcnn.feat_stride),
+            classifier=new_classifier
+        )
+    
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
     lr_ = opt.lr
