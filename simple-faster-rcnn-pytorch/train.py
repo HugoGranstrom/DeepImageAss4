@@ -83,7 +83,7 @@ def train(**kwargs):
             spatial_scale=(1. / faster_rcnn.feat_stride),
             classifier=new_classifier
         ).to(device)
-    faster_rcnn.optimizer = faster_rcnn.get_optimizer()
+    trainer.optimizer = faster_rcnn.get_optimizer()
     
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
