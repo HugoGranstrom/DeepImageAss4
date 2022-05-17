@@ -38,7 +38,8 @@ def caffe_normalize(img):
     img = (img - mean).astype(np.float32, copy=True)
     return img
 
-
+from torchvision import transforms
+augmentations = transforms.Compose([transforms.ColorJitter(0.2, 0.2, 0.2, 0.1)])
 def preprocess(img, min_size=600, max_size=1000):
     """Preprocess an image for feature extraction.
 
@@ -65,6 +66,7 @@ def preprocess(img, min_size=600, max_size=1000):
     scale = min(scale1, scale2)
     img = img / 255.
     img = sktsf.resize(img, (C, H * scale, W * scale), mode='reflect',anti_aliasing=False)
+    img = augmentations(t.from_numpy(img)).numpy()
     # both the longer and shorter should be less than
     # max_size and min_size
     if opt.caffe_pretrain:

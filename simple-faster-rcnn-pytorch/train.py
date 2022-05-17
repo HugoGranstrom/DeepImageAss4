@@ -90,8 +90,6 @@ def train(**kwargs):
         param.requires_grad = False """
 
     trainer.optimizer = faster_rcnn.get_optimizer()
-
-    augmentations = transforms.Compose([transforms.ColorJitter(0.02, 0.02, 0.02, 0.02)])
     
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
@@ -100,7 +98,6 @@ def train(**kwargs):
         trainer.reset_meters()
         for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
             scale = at.scalar(scale)
-            img = augmentations(img)
             img, bbox, label = img.to(device).float(), bbox_.to(device), label_.to(device)
             trainer.train_step(img, bbox, label, scale)
 
