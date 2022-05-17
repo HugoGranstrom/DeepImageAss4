@@ -5,6 +5,7 @@ import ipdb
 import matplotlib
 from tqdm import tqdm
 import torch
+from torchvision import transforms
 
 from utils.config import opt
 from data.dataset import Dataset, TestDataset, inverse_normalize
@@ -57,7 +58,8 @@ def train(**kwargs):
                                   batch_size=1, \
                                   shuffle=True, \
                                   # pin_memory=True,
-                                  num_workers=opt.num_workers)
+                                  num_workers=opt.num_workers
+                                  )
     testset = TestDataset(opt)
     test_dataloader = data_.DataLoader(testset,
                                        batch_size=1,
@@ -72,18 +74,24 @@ def train(**kwargs):
         trainer.load(opt.load_path)
         print('load pretrained model from %s' % opt.load_path)
 
-    """ for layer in faster_rcnn.extractor[:len(faster_rcnn.extractor) // 2]:
+    """ for layer in faster_rcnn.extractor:#[:len(faster_rcnn.extractor) // 2]:
         for param in layer.parameters():
             param.requires_grad = False """
 
-    new_classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096, bias=True), torch.nn.ReLU(inplace=True), torch.nn.Linear(4096, 4096, bias=True), torch.nn.ReLU(inplace=True))
+    #new_classifier = torch.nn.Sequential(torch.nn.Linear(25088, 4096, bias=True), torch.nn.ReLU(inplace=True), torch.nn.Linear(4096, 4096, bias=True), torch.nn.ReLU(inplace=True))
     faster_rcnn.head = VGG16RoIHead(
             n_class=7 + 1,
             roi_size=7,
             spatial_scale=(1. / faster_rcnn.feat_stride),
-            classifier=new_classifier
+            classifier=faster_rcnn.head.classifier
         ).to(device)
+
+    """ for param in faster_rcnn.head.classifier[0].parameters():
+        param.requires_grad = False """
+
     trainer.optimizer = faster_rcnn.get_optimizer()
+
+    augmentations = transforms.Compose([transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)])
     
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
@@ -92,6 +100,7 @@ def train(**kwargs):
         trainer.reset_meters()
         for ii, (img, bbox_, label_, scale) in tqdm(enumerate(dataloader)):
             scale = at.scalar(scale)
+            img = augmentations(img)
             img, bbox, label = img.to(device).float(), bbox_.to(device), label_.to(device)
             trainer.train_step(img, bbox, label, scale)
 
@@ -133,7 +142,7 @@ def train(**kwargs):
             best_map = eval_result['map']
             best_path = trainer.save(best_map=best_map)
         if epoch == opt.epoch // 2:
-            trainer.load(best_path)
+            #trainer.load(best_path)
             trainer.faster_rcnn.scale_lr(opt.lr_decay)
             lr_ = lr_ * opt.lr_decay
 
