@@ -91,7 +91,7 @@ def train(**kwargs):
 
     trainer.optimizer = faster_rcnn.get_optimizer()
 
-    augmentations = transforms.Compose([transforms.ColorJitter(0.1, 0.1, 0.1, 0.1)])
+    augmentations = transforms.Compose([transforms.ColorJitter(0.02, 0.02, 0.02, 0.02)])
     
     trainer.vis.text(dataset.db.label_names, win='labels')
     best_map = 0
